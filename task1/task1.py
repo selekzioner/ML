@@ -6,10 +6,6 @@ from itertools import product
 class PotentialFunctionClassifier:
     def __init__(self, window_size: float):
         self.window_size = window_size
-        self.train_x = None
-        self.train_y = None
-        self.charges = None
-        self.classes = None
         
         
     def _calculate_kernel(self, x: np.array):
@@ -39,12 +35,18 @@ class PotentialFunctionClassifier:
             test_x = test_x[np.newaxis, :]
 
         diffs = test_x[:, np.newaxis] - self.train_x[np.newaxis, :]
+        assert diffs.shape[0] == test_x.shape[0] and diffs.shape[1] == self.train_x.shape[0]
+        assert diffs.shape[2] == test_x.shape[1] and test_x.shape[1] == self.train_x.shape[1]
+                    
         dists = np.sqrt(np.sum((diffs ** 2), axis=-1))
+        assert dists.shape[0] == test_x.shape[0] and dists.shape[1] == self.train_x.shape[0]
         
         weights = self.charges * self._calculate_kernel(dists / self.window_size)
-        table = np.zeros((test_x.shape[0], len(self.classes)))
+        assert weights.shape[0] == test_x.shape[0] and weights.shape[1] == self.train_x.shape[0]
+        
+        predicts = np.zeros((test_x.shape[0], len(self.classes)))
 
         for c in self.classes:
-            table[:, c] = np.sum(weights[:, self.train_y == c], axis=1)
+            predicts[:, c] = np.sum(weights[:, self.train_y == c], axis=1)
 
-        return np.argmax(table, axis=1)
+        return np.argmax(predicts, axis=1)
