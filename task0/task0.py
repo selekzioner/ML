@@ -51,26 +51,26 @@ def drawROC(probs, gt):
     area = np.trapz(fpr, tpr)
     print('skilearn area :' + str(area))
     
-
-def drawPR(probs, gt):
-    ths = np.unique(probs.copy())
-    ths.sort()
-    rs = [1]
-    ps = [0]
-    for t in ths:
-        if (TP(probs, gt, t) + FN(probs, gt, t) == 0 or TP(probs, gt, t) + FP(probs, gt, t) == 0):
-            continue
-        rs.append(recall(probs, gt, t))
-        ps.append(precision(probs, gt, t))
-        
-    #rs.append(0)
-    #ps.append(1)
     
-    plt.plot(ps, rs)
+def drawPR(probs, gt):
+    thresholds = np.unique(probs)[::-1]
+    thresholds.sort()
+    
+    precisions = []
+    recalls = []
+    
+    for th in thresholds:
+        recalls.append(recall(probs, gt, th))
+        precisions.append(precision(probs, gt, th))
+        
+    recalls.append(0)
+    precisions.append(1)
+    
+    print("PR")
+    plt.plot(precisions, recalls)
     plt.xlim([0,1.1])
     plt.ylim([0,1.1])
     
-    area = np.trapz(rs, ps)
-    print('Area :' + str(area))
-    
+    area = np.trapz(recalls, precisions)
+    print('PR AUC: ' + str(area))
     
