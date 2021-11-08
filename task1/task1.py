@@ -20,10 +20,14 @@ class PotentialFunctionClassifier:
             for i in range(self.train_x.shape[0]):
                 if self.predict(self.train_x[i]) != self.train_y[i]:
                     self.charges[i] += 1
-
+        
+        i_size = self.charges.size
+        
         self.train_x = self.train_x[self.charges > 0, ...]
         self.train_y = self.train_y[self.charges > 0, ...]
         self.charges = self.charges[self.charges > 0, ...]
+        
+        print(i_size - self.charges.size)
         
     def predict(self, x: np.array):
         test_x = np.copy(x)
